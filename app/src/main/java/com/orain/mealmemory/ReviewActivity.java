@@ -41,6 +41,8 @@ public class ReviewActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //State of deleting manages handling of clicking a review
+        //If deleting is true it will confirm and delete the review, if false it does nothing
         deleting = false;
 
         Intent intent = getIntent();
@@ -50,9 +52,10 @@ public class ReviewActivity extends AppCompatActivity {
 
         myArrayAdapter = new ReviewAdapter(this, R.layout.reivew_item, g.getReviews(rest));
 
+        //Setting up delete click handler
         listView = (ListView) findViewById(R.id.list);
         listView.setAdapter(myArrayAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 deleteRow(position);
@@ -69,6 +72,7 @@ public class ReviewActivity extends AppCompatActivity {
         });
     }
 
+    //If in the deleting state confirm with user and remove that review
     private void deleteRow(int position){
         if(deleting){
             final Review theReview = (Review) listView.getItemAtPosition(position);
