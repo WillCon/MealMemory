@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         //    Log.i("STATE OF GLOBALS", "FINE");
         //}
 
-        myArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, g.getRestaurants());
+        myArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, restaurants);
 
         listView = (ListView) findViewById(R.id.mainList);
         listView.setAdapter(myArrayAdapter);
@@ -166,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     //Globals g = Globals.getInstance();
                     //g.addRestaurant(input.getText().toString());
+                    addRestaurant(input.getText().toString());
                     myArrayAdapter.notifyDataSetChanged();
 
                 }
