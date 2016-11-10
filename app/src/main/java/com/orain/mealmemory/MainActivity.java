@@ -25,11 +25,13 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private ListView listView;
     private ArrayAdapter myArrayAdapter;
     private boolean deleting;
+    private ArrayList<String> restaurants = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,13 @@ public class MainActivity extends AppCompatActivity {
 
         deleting = false;
         Globals g = Globals.getInstance();
+
+        //Get list of restaurant files and store in list
+        String[] filesList = fileList();
+        for(int i = 0; i < filesList.length; i++){
+            restaurants.add(filesList[i]);
+        }
+
 
         // if(g.getRestaurants() == null) {
         //    Log.i("STATE OF GLOBALS", "NULL");
@@ -76,21 +85,23 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void deleteRow(int position){
+    private void deleteRow(final int position){
         if(deleting){
-            final Restaurant theRest = (Restaurant) listView.getItemAtPosition(position);
-            final String theRestString = theRest.getName();
+            //final Restaurant theRest = (Restaurant) listView.getItemAtPosition(position);
+            //final String theRestString = theRest.getName();
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Delete Meal");
-            builder.setMessage("Delete " + theRestString + "?");
+            //builder.setMessage("Delete " + theRestString + "?");
+            builder.setMessage("Delete " + restaurants.get(position) + "?");
 
             // Set up the buttons
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Globals g = Globals.getInstance();
-                    g.removeRestaurant(theRestString);
+                   // Globals g = Globals.getInstance();
+                   // g.removeRestaurant(theRestString);
+                    restaurants.remove(position);
                     myArrayAdapter.notifyDataSetChanged();
 
                 }
@@ -153,8 +164,8 @@ public class MainActivity extends AppCompatActivity {
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Globals g = Globals.getInstance();
-                    g.addRestaurant(input.getText().toString());
+                    //Globals g = Globals.getInstance();
+                    //g.addRestaurant(input.getText().toString());
                     myArrayAdapter.notifyDataSetChanged();
 
                 }
@@ -186,5 +197,21 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ReviewActivity.class);
         intent.putExtra("Restaurant", r);
         startActivity(intent);
+    }
+
+    private boolean addRestaurant(String newRest){
+        int comparison = 0;
+        for (int i = 0; i < restaurants.size(); i++){
+            comparison = restaurants.get(i).compareTo(newRest);
+            if(comparison == 0) {
+                return false;
+            }
+            else if(comparison > 0){
+                restaurants.add(i, newRest);
+                return true;
+            }
+        }
+        restaurants.add(newRest);
+        return true;
     }
 }
