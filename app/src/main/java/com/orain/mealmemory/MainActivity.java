@@ -23,12 +23,15 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private ListView listView;
+
     private ArrayAdapter myArrayAdapter;
     private boolean deleting;
     private ArrayList<String> restaurants = null;
@@ -42,13 +45,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         deleting = false;
-        Globals g = Globals.getInstance();
+        //Globals g = Globals.getInstance();
 
         //Get list of restaurant files and store in list
         String[] filesList = fileList();
-        for(int i = 0; i < filesList.length; i++){
-            restaurants.add(filesList[i]);
-        }
+        restaurants.addAll(Arrays.asList(filesList));
 
 
         // if(g.getRestaurants() == null) {
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         myArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, restaurants);
 
+        ListView listView;
         listView = (ListView) findViewById(R.id.mainList);
         listView.setAdapter(myArrayAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -102,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
                    // Globals g = Globals.getInstance();
                    // g.removeRestaurant(theRestString);
                     restaurants.remove(position);
+                    deleteFile(restaurants.get(position));
                     myArrayAdapter.notifyDataSetChanged();
 
                 }
@@ -202,17 +205,24 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean addRestaurant(String newRest){
         int comparison = 0;
-        for (int i = 0; i < restaurants.size(); i++){
+        int i = 0;
+        for (; i < restaurants.size(); i++){
             comparison = restaurants.get(i).compareTo(newRest);
             if(comparison == 0) {
                 return false;
             }
             else if(comparison > 0){
-                restaurants.add(i, newRest);
-                return true;
+                break;
             }
         }
-        restaurants.add(newRest);
+        restaurants.add(i, newRest);
+        try {
+            FileOutputStream fos = openFileOutput(newRest, Context.MODE_PRIVATE);
+            fos.close();
+        }
+        catch (IOException e){
+            return false;
+        }
         return true;
     }
 }
