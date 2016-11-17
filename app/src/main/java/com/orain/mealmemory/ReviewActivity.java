@@ -29,7 +29,7 @@ import android.widget.Toast;
 
 public class ReviewActivity extends AppCompatActivity {
 
-    private int rest;
+    private String rest;
     private ListView listView;
     private ReviewAdapter myArrayAdapter;
     private boolean deleting;
@@ -46,7 +46,7 @@ public class ReviewActivity extends AppCompatActivity {
         deleting = false;
 
         Intent intent = getIntent();
-        rest = intent.getIntExtra("Restaurant", -1);
+        rest = intent.getStringExtra("Restaurant");
 
         Globals g = Globals.getInstance();
 
