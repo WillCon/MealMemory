@@ -45,9 +45,10 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         deleting = false;
-        //Globals g = Globals.getInstance();
+
 
         //Get list of restaurant files and store in list
+        restaurants = new ArrayList<String>(); //List of all restaurants
         String[] filesList = fileList();
         restaurants.addAll(Arrays.asList(filesList));
 
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                     deleteRow(position);
                 }
                 else {
-                    openReviews(position);
+                    openReviews(restaurants.get(position));
                 }
             }
         });
@@ -197,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void openReviews(int r){
+    private void openReviews(String r){
         Intent intent = new Intent(this, ReviewActivity.class);
         intent.putExtra("Restaurant", r);
         startActivity(intent);
@@ -221,6 +222,8 @@ public class MainActivity extends AppCompatActivity {
             fos.close();
         }
         catch (IOException e){
+            Toast errorMessage = Toast.makeText(getApplicationContext(), "Cannot Create File", Toast.LENGTH_SHORT);
+            errorMessage.show();
             return false;
         }
         return true;

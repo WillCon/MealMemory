@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -27,12 +28,26 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
 public class ReviewActivity extends AppCompatActivity {
 
-    private String rest;
     private ListView listView;
     private ReviewAdapter myArrayAdapter;
     private boolean deleting;
+    private ArrayList<Review> reviews;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,17 +60,32 @@ public class ReviewActivity extends AppCompatActivity {
         //If deleting is true it will confirm and delete the review, if false it does nothing
         deleting = false;
 
+        //Get name of currently edited restaurant from the MainActivity
         Intent intent = getIntent();
-        rest = intent.getStringExtra("Restaurant");
+        final String rest = intent.getStringExtra("Restaurant");
 
-        Globals g = Globals.getInstance();
+        //Populate reviews list
+        reviews = new ArrayList<Review>(); //List of all individual meal reviews at that restaurant
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(rest + ".txt"));
+            String nextReview;
+            while((nextReview = in.readLine()) != null){
+                String[] parts = nextReview.split("|");
+                String nextName = parts[0]; // 004
+                String nextRating = parts[1]; // 034556
+                addReview(nextName, Integer.parseInt(nextRating));
+            }
+        } catch (IOException e) {
+            Toast errorMessage = Toast.makeText(getApplicationContext(), "Cannot Read File", Toast.LENGTH_SHORT);
+            errorMessage.show();
+        }
 
-        myArrayAdapter = new ReviewAdapter(this, R.layout.reivew_item, g.getReviews(rest));
+        myArrayAdapter = new ReviewAdapter(this, R.layout.reivew_item, reviews);
 
         //Setting up delete click handler
         listView = (ListView) findViewById(R.id.list);
         listView.setAdapter(myArrayAdapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 deleteRow(position);
@@ -63,18 +93,21 @@ public class ReviewActivity extends AppCompatActivity {
         });
 
         final Button cancelDelete = (Button) findViewById(R.id.doneDeleting);
-        cancelDelete.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
+        cancelDelete.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
                 deleting = false;
                 LinearLayout deletingBar = (LinearLayout) findViewById(R.id.deleteBar);
                 deletingBar.setVisibility(View.GONE);
             }
         });
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     //If in the deleting state confirm with user and remove that review
-    private void deleteRow(int position){
-        if(deleting){
+    private void deleteRow(int position) {
+        if (deleting) {
             final Review theReview = (Review) listView.getItemAtPosition(position);
             final String theReviewString = theReview.getMealName();
 
@@ -86,10 +119,8 @@ public class ReviewActivity extends AppCompatActivity {
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Globals g = Globals.getInstance();
-                    g.removeReview(rest, theReviewString);
+                    removeReview(theReviewString);
                     myArrayAdapter.notifyDataSetChanged();
-
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -104,7 +135,7 @@ public class ReviewActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
         deleting = false;
         LinearLayout deletingBar = (LinearLayout) findViewById(R.id.deleteBar);
@@ -134,7 +165,7 @@ public class ReviewActivity extends AppCompatActivity {
 
             return true;
         }
-        if(id == R.id.addItem){
+        if (id == R.id.addItem) {
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
             final boolean color = sharedPref.getBoolean("color_switch", true);
 
@@ -152,15 +183,14 @@ public class ReviewActivity extends AppCompatActivity {
             layout.addView(input);
 
             final Spinner dropdown = new Spinner(this);
-            if(color) {
+            if (color) {
                 Integer[] items = new Integer[]{R.mipmap.ic_green, R.mipmap.ic_orange, R.mipmap.ic_red};
                 ImageSpinner adapter = new ImageSpinner(this, items);
                 dropdown.setAdapter(adapter);
                 layout.addView(dropdown);
-            }
-            else{
+            } else {
                 String[] items = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
-                ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, items);
+                ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
                 dropdown.setAdapter(adapter);
                 layout.addView(dropdown);
             }
@@ -171,9 +201,8 @@ public class ReviewActivity extends AppCompatActivity {
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Globals g = Globals.getInstance();
                     int temp = dropdown.getSelectedItemPosition();
-                    if(color) {
+                    if (color) {
                         if (temp == 0) {
                             temp = 10;
                         } else if (temp == 1) {
@@ -181,11 +210,10 @@ public class ReviewActivity extends AppCompatActivity {
                         } else if (temp == 2) {
                             temp = 1;
                         }
-                    }
-                    else{
+                    } else {
                         temp++;
                     }
-                    g.addReview(rest, input.getText().toString(), temp);
+                    addReview(input.getText().toString(), temp);
                     myArrayAdapter.notifyDataSetChanged();
 
                 }
@@ -201,7 +229,7 @@ public class ReviewActivity extends AppCompatActivity {
 
             return true;
         }
-        if(id == R.id.removeItem){
+        if (id == R.id.removeItem) {
 
             deleting = true;
             LinearLayout deletingBar = (LinearLayout) findViewById(R.id.deleteBar);
@@ -211,6 +239,75 @@ public class ReviewActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Review Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.orain.mealmemory/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Review Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.orain.mealmemory/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
+    }
+
+    //Adds a new review of name n and rating r, returns false if that meal already exists
+    private boolean addReview(String n, int r) {
+        if (findReview(n) != -1) {
+            return false;
+        }
+        reviews.add(new Review(n, r));
+        return true;
+    }
+
+    //Removes review of name n, returns true if it removes something, otherwise returns false
+    private boolean removeReview(String n){
+        final int temp = findReview(n);
+        if(temp != -1){
+            reviews.remove(temp);
+            return true;
+        }
+        return false;
+    }
+
+    //Returns index of review matching name n, no matching review returns -1
+    private int findReview(String n){
+        for(int i = 0; i < reviews.size(); i++){
+            if(reviews.get(i).getMealName().equals(n)){
+                return i;
+            }
+        }
+        return -1;
     }
 
 }

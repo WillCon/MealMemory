@@ -9,44 +9,6 @@ import java.util.ArrayList;
  * Created by William on 12/20/2015.
  */
 
-//One Meal with an attached rating
-class Review{
-    private String mealName;
-    private int rating;
-
-    public Review(String n, int r) {
-        mealName = n;
-        if(r <= 10 && r >= 1) {
-            rating = r;
-        }
-        else{
-            rating = 1;
-        }
-    }
-
-    public String toString(){
-        return (mealName + " " + Integer.toString(rating));
-    }
-    public String getMealName(){
-        return mealName;
-    }
-    public int getRating(){
-        return rating;
-    }
-
-    public void setMealName(String n){
-        mealName = n;
-    }
-    public void setRating(int r){
-        if(r <= 10 && r >= 1) {
-            rating = r;
-        }
-        else{
-            rating = 1;
-        }
-    }
-}
-
 //One Restaurant with attached list of rated meals
 class Restaurant{
     private String name; //Name of the Restaurant
