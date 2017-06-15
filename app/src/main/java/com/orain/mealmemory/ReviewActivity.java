@@ -3,6 +3,7 @@ package com.orain.mealmemory;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +15,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,14 +36,17 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class ReviewActivity extends AppCompatActivity {
 
     private ListView listView;
     private ReviewAdapter myArrayAdapter;
     private boolean deleting;
+    private String currentRest;
     private ArrayList<Review> reviews;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -60,23 +65,38 @@ public class ReviewActivity extends AppCompatActivity {
         //If deleting is true it will confirm and delete the review, if false it does nothing
         deleting = false;
 
+        String[] filesList = fileList();
+        for (String fileName : filesList) {
+            Log.d("Files (Review)", fileName);
+        }
+
         //Get name of currently edited restaurant from the MainActivity
         Intent intent = getIntent();
-        final String rest = intent.getStringExtra("Restaurant");
+        currentRest = intent.getStringExtra("Restaurant");
 
         //Populate reviews list
-        reviews = new ArrayList<Review>(); //List of all individual meal reviews at that restaurant
+        reviews = new ArrayList<>(); //List of all individual meal reviews at that restaurant
         try {
-            BufferedReader in = new BufferedReader(new FileReader(rest + ".txt"));
+            Log.d("Opening to read", currentRest);
+            BufferedReader in = new BufferedReader(new FileReader(getFilesDir() + "/" + currentRest));
+            Log.d("Opened", currentRest);
             String nextReview;
             while((nextReview = in.readLine()) != null){
-                String[] parts = nextReview.split("|");
-                String nextName = parts[0]; // 004
-                String nextRating = parts[1]; // 034556
+                if(nextReview.equals("")){
+                    Log.e("Reading", "Empty String");
+                    continue;
+                }
+                Log.d("Splitting Review", "-" + nextReview + "-");
+                StringTokenizer tokens = new StringTokenizer(nextReview, "|");
+                String nextName = tokens.nextToken();
+                String nextRating = tokens.nextToken();
+                Log.d("Adding Review", nextName + " rated " + nextRating);
                 addReview(nextName, Integer.parseInt(nextRating));
             }
+            in.close();
         } catch (IOException e) {
             Toast errorMessage = Toast.makeText(getApplicationContext(), "Cannot Read File", Toast.LENGTH_SHORT);
+            Log.e("Read Failed", e.getMessage());
             errorMessage.show();
         }
 
@@ -190,7 +210,7 @@ public class ReviewActivity extends AppCompatActivity {
                 layout.addView(dropdown);
             } else {
                 String[] items = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
-                ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
+                ArrayAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, items);
                 dropdown.setAdapter(adapter);
                 layout.addView(dropdown);
             }
@@ -212,6 +232,10 @@ public class ReviewActivity extends AppCompatActivity {
                         }
                     } else {
                         temp++;
+                    }
+                    if(input.getText().toString().contains("|")){
+                        Toast errorMessage = Toast.makeText(getApplicationContext(), "Meal cannot contain '|' character.", Toast.LENGTH_SHORT);
+                        errorMessage.show();
                     }
                     addReview(input.getText().toString(), temp);
                     myArrayAdapter.notifyDataSetChanged();
@@ -259,6 +283,25 @@ public class ReviewActivity extends AppCompatActivity {
                 Uri.parse("android-app://com.orain.mealmemory/http/host/path")
         );
         AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+
+        try{
+            Log.d("Opening Output", currentRest);
+            FileWriter FO = new FileWriter(getFilesDir() + "/" + currentRest);
+            Log.d("Success Opening", currentRest);
+            for (Review r : reviews){
+                FO.write(r.getMealName() + '|' + r.getRating() + "\n");
+            }
+            FO.close();
+        }catch (IOException e){
+            Toast errorMessage = Toast.makeText(getApplicationContext(), "Cannot Write File" , Toast.LENGTH_SHORT);
+            Log.e("Write Failed", e.getMessage());
+            errorMessage.show();
+        }
     }
 
     @Override

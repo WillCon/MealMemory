@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayAdapter myArrayAdapter;
     private boolean deleting;
-    private ArrayList<String> restaurants = null;
+    private ArrayList<String> restaurants;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,17 +50,12 @@ public class MainActivity extends AppCompatActivity {
         //Get list of restaurant files and store in list
         restaurants = new ArrayList<String>(); //List of all restaurants
         String[] filesList = fileList();
+        for(int i = 0; i < filesList.length; i++){
+            Log.d("Files (Main)", filesList[i]);
+        }
         restaurants.addAll(Arrays.asList(filesList));
 
-
-        // if(g.getRestaurants() == null) {
-        //    Log.i("STATE OF GLOBALS", "NULL");
-        //}
-        //else{
-        //    Log.i("STATE OF GLOBALS", "FINE");
-        //}
-
-        myArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, restaurants);
+        myArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, restaurants);
 
         ListView listView;
         listView = (ListView) findViewById(R.id.mainList);
@@ -102,10 +97,8 @@ public class MainActivity extends AppCompatActivity {
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                   // Globals g = Globals.getInstance();
-                   // g.removeRestaurant(theRestString);
-                    restaurants.remove(position);
                     deleteFile(restaurants.get(position));
+                    restaurants.remove(position);
                     myArrayAdapter.notifyDataSetChanged();
 
                 }
@@ -168,8 +161,6 @@ public class MainActivity extends AppCompatActivity {
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    //Globals g = Globals.getInstance();
-                    //g.addRestaurant(input.getText().toString());
                     addRestaurant(input.getText().toString());
                     myArrayAdapter.notifyDataSetChanged();
 
