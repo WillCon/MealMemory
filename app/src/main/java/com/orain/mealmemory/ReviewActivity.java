@@ -75,6 +75,7 @@ public class ReviewActivity extends AppCompatActivity {
         //Get name of currently edited restaurant from the MainActivity
         Intent intent = getIntent();
         currentRest = intent.getStringExtra("Restaurant");
+        setTitle(currentRest);
 
         //Populate reviews list
         reviews = new ArrayList<>(); //List of all individual meal reviews at that restaurant
@@ -95,41 +96,6 @@ public class ReviewActivity extends AppCompatActivity {
             Toast errorMessage = Toast.makeText(getApplicationContext(), "Cannot Read File", Toast.LENGTH_SHORT);
             Log.e("Read Failed", e.getMessage());
             errorMessage.show();
-        }
-        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        final String sortType = sharedPref.getString("review_sort", "0");
-        switch (sortType){
-            case "1":
-                Collections.sort(reviews, new Comparator<Review>() {
-                    @Override
-                    public int compare(Review lhs, Review rhs) {
-                        return lhs.compareTo1(rhs);
-                    }
-                });
-                break;
-            case "2":
-                Collections.sort(reviews, new Comparator<Review>() {
-                    @Override
-                    public int compare(Review lhs, Review rhs) {
-                        return lhs.compareTo2(rhs);
-                    }
-                });
-                break;
-            case "3":
-                Collections.sort(reviews, new Comparator<Review>() {
-                    @Override
-                    public int compare(Review lhs, Review rhs) {
-                        return lhs.compareTo3(rhs);
-                    }
-                });
-                break;
-            default:
-                Collections.sort(reviews, new Comparator<Review>() {
-                    @Override
-                    public int compare(Review lhs, Review rhs) {
-                        return lhs.compareTo0(rhs);
-                    }
-                });
         }
 
         myArrayAdapter = new ReviewAdapter(this, R.layout.reivew_item, reviews);
@@ -193,6 +159,7 @@ public class ReviewActivity extends AppCompatActivity {
         LinearLayout deletingBar = (LinearLayout) findViewById(R.id.deleteBar);
         deletingBar.setVisibility(View.GONE);
 
+        sortReviews();
         myArrayAdapter.notifyDataSetChanged();
     }
 
@@ -301,20 +268,6 @@ public class ReviewActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Review Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://com.orain.mealmemory/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
     }
 
     @Override
@@ -322,9 +275,7 @@ public class ReviewActivity extends AppCompatActivity {
         super.onPause();
 
         try{
-            Log.d("Opening Output", currentRest);
             FileWriter FO = new FileWriter(getFilesDir() + "/" + currentRest);
-            Log.d("Success Opening", currentRest);
             for (Review r : reviews){
                 FO.write(r.getMealName() + '|' + r.getRating() + "\n");
             }
@@ -340,28 +291,57 @@ public class ReviewActivity extends AppCompatActivity {
     public void onStop() {
         super.onStop();
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Review Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://com.orain.mealmemory/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
     }
 
     //Adds a new review of name n and rating r, returns false if that meal already exists
     private boolean addReview(String n, int r) {
         if (findReview(n) != -1) {
+            Toast errorMessage = Toast.makeText(getApplicationContext(), "Meal Already Exists" , Toast.LENGTH_SHORT);
+            errorMessage.show();
             return false;
         }
-        reviews.add(new Review(n, r));
+        int loc = reviews.size();
+        Review temp = new Review(n, r);
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        final String sortType = sharedPref.getString("review_sort", "0");
+        switch (sortType){
+            case "0":
+                for(int i = 0; i < reviews.size(); i++){
+                    //Log.d("Review Insert", reviews.get(i).getMealName() + " compared to " + temp.getMealName() + " = " + reviews.get(i).compareTo0(temp));
+                    if(reviews.get(i).compareTo0(temp) > 0){
+                        loc = i;
+                        break;
+                    }
+                }
+                break;
+            case "1":
+                for(int i = 0; i < reviews.size(); i++){
+                    if(reviews.get(i).compareTo1(temp) > 0){
+                        loc = i;
+                        break;
+                    }
+                }
+                break;
+            case "2":
+                for(int i = 0; i < reviews.size(); i++){
+                    if(reviews.get(i).compareTo2(temp) > 0){
+                        loc = i;
+                        break;
+                    }
+                }
+                break;
+            case "3":
+                for(int i = 0; i < reviews.size(); i++){
+                    if(reviews.get(i).compareTo3(temp) > 0){
+                        loc = i;
+                        break;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        reviews.add(loc, temp);
         return true;
     }
 
@@ -383,6 +363,52 @@ public class ReviewActivity extends AppCompatActivity {
             }
         }
         return -1;
+    }
+
+    private void sortReviews(){
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        final String sortType = sharedPref.getString("review_sort", "0");
+        switch (sortType){
+            case "0":
+                Collections.sort(reviews, new Comparator<Review>() {
+                    @Override
+                    public int compare(Review lhs, Review rhs) {
+                        return lhs.compareTo0(rhs);
+                    }
+                });
+                break;
+            case "1":
+                Collections.sort(reviews, new Comparator<Review>() {
+                    @Override
+                    public int compare(Review lhs, Review rhs) {
+                        return lhs.compareTo1(rhs);
+                    }
+                });
+                break;
+            case "2":
+                Collections.sort(reviews, new Comparator<Review>() {
+                    @Override
+                    public int compare(Review lhs, Review rhs) {
+                        return lhs.compareTo2(rhs);
+                    }
+                });
+                break;
+            case "3":
+                Collections.sort(reviews, new Comparator<Review>() {
+                    @Override
+                    public int compare(Review lhs, Review rhs) {
+                        return lhs.compareTo3(rhs);
+                    }
+                });
+                break;
+            default:
+                Collections.sort(reviews, new Comparator<Review>() {
+                    @Override
+                    public int compare(Review lhs, Review rhs) {
+                        return lhs.compareTo0(rhs);
+                    }
+                });
+        }
     }
 
 }

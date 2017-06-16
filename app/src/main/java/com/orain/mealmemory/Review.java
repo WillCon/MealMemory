@@ -20,16 +20,16 @@ public class Review {
     }
 
     public int compareTo0(Review otherReview){
-        return this.mealName.compareTo(otherReview.getMealName());
+        return this.mealName.compareToIgnoreCase(otherReview.getMealName());
     }
     public int compareTo1(Review otherReview){
-        return -1 * this.mealName.compareTo(otherReview.getMealName());
+        return -1 * this.mealName.compareToIgnoreCase(otherReview.getMealName());
     }
     public int compareTo2(Review otherReview){
-        return this.rating > otherReview.rating ? -1 : (this.rating < otherReview.rating) ? 1 : 0;
+        return this.rating > otherReview.rating ? -1 : (this.rating < otherReview.rating) ? 1 : compareTo0(otherReview);
     }
     public int compareTo3(Review otherReview){
-        return this.rating > otherReview.rating ? 1 : (this.rating < otherReview.rating) ? -1 : 0;
+        return this.rating > otherReview.rating ? 1 : (this.rating < otherReview.rating) ? -1 : compareTo0(otherReview);
     }
 
     public String toString(){

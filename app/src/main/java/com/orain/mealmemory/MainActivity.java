@@ -52,14 +52,12 @@ public class MainActivity extends AppCompatActivity {
         //Get list of restaurant files and store in list
         restaurants = new ArrayList<String>(); //List of all restaurants
         String[] filesList = fileList();
-        for(int i = 0; i < filesList.length; i++){
-            Log.d("Files (Main)", filesList[i]);
-        }
+
         restaurants.addAll(Arrays.asList(filesList));
         Collections.sort(restaurants, new Comparator<String>() {
             @Override
             public int compare(String lhs, String rhs) {
-                return lhs.compareTo(rhs);
+                return lhs.compareToIgnoreCase(rhs);
             }
         });
 
@@ -207,8 +205,10 @@ public class MainActivity extends AppCompatActivity {
         int comparison = 0;
         int i = 0;
         for (; i < restaurants.size(); i++){
-            comparison = restaurants.get(i).compareTo(newRest);
+            comparison = restaurants.get(i).compareToIgnoreCase(newRest);
             if(comparison == 0) {
+                Toast errorMessage = Toast.makeText(getApplicationContext(), "Restaurant Already Exists" , Toast.LENGTH_SHORT);
+                errorMessage.show();
                 return false;
             }
             else if(comparison > 0){

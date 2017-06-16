@@ -9,6 +9,7 @@
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 
+    <string name="deleteHint">Tap Item to Delete</string>
     <string name="pref_title_color_rating">Use color ratings</string>
     <string name="pref_description_color_rating">Ratings are graded on a color scale instead of numerically.</string>
     <string name="pref_title_color_sort">Sort type</string>
