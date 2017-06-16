@@ -6,9 +6,11 @@
         android:summary="@string/pref_description_color_rating"
         android:title="@string/pref_title_color_rating" />
 
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="color_sort"
+    <ListPreference
+        android:defaultValue="0"
+        android:entries="@array/Sort"
+        android:entryValues="@array/SortData"
+        android:key="review_sort"
         android:title="@string/pref_title_color_sort"
         android:summary="@string/pref_description_color_sort"/>
 

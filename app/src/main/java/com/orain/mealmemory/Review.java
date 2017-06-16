@@ -19,6 +19,19 @@ public class Review {
         }
     }
 
+    public int compareTo0(Review otherReview){
+        return this.mealName.compareTo(otherReview.getMealName());
+    }
+    public int compareTo1(Review otherReview){
+        return -1 * this.mealName.compareTo(otherReview.getMealName());
+    }
+    public int compareTo2(Review otherReview){
+        return this.rating > otherReview.rating ? -1 : (this.rating < otherReview.rating) ? 1 : 0;
+    }
+    public int compareTo3(Review otherReview){
+        return this.rating > otherReview.rating ? 1 : (this.rating < otherReview.rating) ? -1 : 0;
+    }
+
     public String toString(){
         return (mealName + " " + Integer.toString(rating));
     }

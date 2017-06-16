@@ -10,9 +10,8 @@
     <string name="pref_header_general">General</string>
 
     <string name="pref_title_color_rating">Use color ratings</string>
-    <string name="pref_description_color_rating">Ratings are graded on a color scale instead of a numeric one
-    </string>
-    <string name="pref_title_color_sort">Sort by ratings</string>
-    <string name="pref_description_color_sort">Sorts meals by rating instead of alphabetically</string>
+    <string name="pref_description_color_rating">Ratings are graded on a color scale instead of numerically.</string>
+    <string name="pref_title_color_sort">Sort type</string>
+    <string name="pref_description_color_sort">How reviews are sorted.</string>
 
 </resources>

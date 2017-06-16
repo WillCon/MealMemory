@@ -39,6 +39,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.StringTokenizer;
 
 public class ReviewActivity extends AppCompatActivity {
@@ -77,20 +79,15 @@ public class ReviewActivity extends AppCompatActivity {
         //Populate reviews list
         reviews = new ArrayList<>(); //List of all individual meal reviews at that restaurant
         try {
-            Log.d("Opening to read", currentRest);
             BufferedReader in = new BufferedReader(new FileReader(getFilesDir() + "/" + currentRest));
-            Log.d("Opened", currentRest);
             String nextReview;
             while((nextReview = in.readLine()) != null){
                 if(nextReview.equals("")){
-                    Log.e("Reading", "Empty String");
                     continue;
                 }
-                Log.d("Splitting Review", "-" + nextReview + "-");
                 StringTokenizer tokens = new StringTokenizer(nextReview, "|");
                 String nextName = tokens.nextToken();
                 String nextRating = tokens.nextToken();
-                Log.d("Adding Review", nextName + " rated " + nextRating);
                 addReview(nextName, Integer.parseInt(nextRating));
             }
             in.close();
@@ -98,6 +95,41 @@ public class ReviewActivity extends AppCompatActivity {
             Toast errorMessage = Toast.makeText(getApplicationContext(), "Cannot Read File", Toast.LENGTH_SHORT);
             Log.e("Read Failed", e.getMessage());
             errorMessage.show();
+        }
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        final String sortType = sharedPref.getString("review_sort", "0");
+        switch (sortType){
+            case "1":
+                Collections.sort(reviews, new Comparator<Review>() {
+                    @Override
+                    public int compare(Review lhs, Review rhs) {
+                        return lhs.compareTo1(rhs);
+                    }
+                });
+                break;
+            case "2":
+                Collections.sort(reviews, new Comparator<Review>() {
+                    @Override
+                    public int compare(Review lhs, Review rhs) {
+                        return lhs.compareTo2(rhs);
+                    }
+                });
+                break;
+            case "3":
+                Collections.sort(reviews, new Comparator<Review>() {
+                    @Override
+                    public int compare(Review lhs, Review rhs) {
+                        return lhs.compareTo3(rhs);
+                    }
+                });
+                break;
+            default:
+                Collections.sort(reviews, new Comparator<Review>() {
+                    @Override
+                    public int compare(Review lhs, Review rhs) {
+                        return lhs.compareTo0(rhs);
+                    }
+                });
         }
 
         myArrayAdapter = new ReviewAdapter(this, R.layout.reivew_item, reviews);

@@ -9,7 +9,7 @@
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/removeItem"
-        android:title="Delete Item"
+        android:title="Delete Items"
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_settings"

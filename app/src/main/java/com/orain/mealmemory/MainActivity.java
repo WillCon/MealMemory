@@ -27,6 +27,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -54,6 +56,12 @@ public class MainActivity extends AppCompatActivity {
             Log.d("Files (Main)", filesList[i]);
         }
         restaurants.addAll(Arrays.asList(filesList));
+        Collections.sort(restaurants, new Comparator<String>() {
+            @Override
+            public int compare(String lhs, String rhs) {
+                return lhs.compareTo(rhs);
+            }
+        });
 
         myArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, restaurants);
 
