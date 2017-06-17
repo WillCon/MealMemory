@@ -1,15 +1,11 @@
 package com.orain.mealmemory;
 
-/**
- * Created by William on 5/13/2017.
- */
-
 //One Meal with an attached rating
-public class Review {
+class Review {
     private String mealName;
     private int rating;
 
-    public Review(String n, int r) {
+    Review(String n, int r) {
         mealName = n;
         if(r <= 10 && r >= 1) {
             rating = r;
@@ -19,26 +15,26 @@ public class Review {
         }
     }
 
-    public int compareTo0(Review otherReview){
+    int compareTo0(Review otherReview){
         return this.mealName.compareToIgnoreCase(otherReview.getMealName());
     }
-    public int compareTo1(Review otherReview){
+    int compareTo1(Review otherReview){
         return -1 * this.mealName.compareToIgnoreCase(otherReview.getMealName());
     }
-    public int compareTo2(Review otherReview){
+    int compareTo2(Review otherReview){
         return this.rating > otherReview.rating ? -1 : (this.rating < otherReview.rating) ? 1 : compareTo0(otherReview);
     }
-    public int compareTo3(Review otherReview){
+    int compareTo3(Review otherReview){
         return this.rating > otherReview.rating ? 1 : (this.rating < otherReview.rating) ? -1 : compareTo0(otherReview);
     }
 
     public String toString(){
         return (mealName + " " + Integer.toString(rating));
     }
-    public String getMealName(){
+    String getMealName(){
         return mealName;
     }
-    public int getRating(){
+    int getRating(){
         return rating;
     }
 

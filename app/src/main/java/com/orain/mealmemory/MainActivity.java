@@ -6,15 +6,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
-import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -50,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Get list of restaurant files and store in list
-        restaurants = new ArrayList<String>(); //List of all restaurants
+        restaurants = new ArrayList<>(); //List of all restaurants
         String[] filesList = fileList();
 
         restaurants.addAll(Arrays.asList(filesList));
@@ -61,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        myArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, restaurants);
+        myArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, restaurants);
 
         ListView listView;
         listView = (ListView) findViewById(R.id.mainList);
@@ -202,17 +198,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean addRestaurant(String newRest){
-        int comparison = 0;
+        int comparison;
         int i = 0;
-        for (; i < restaurants.size(); i++){
+        for (; i < restaurants.size(); i++) {
             comparison = restaurants.get(i).compareToIgnoreCase(newRest);
-            if(comparison == 0) {
-                Toast errorMessage = Toast.makeText(getApplicationContext(), "Restaurant Already Exists" , Toast.LENGTH_SHORT);
+            if (comparison == 0) {
+                Toast errorMessage = Toast.makeText(getApplicationContext(), "Restaurant Already Exists", Toast.LENGTH_SHORT);
                 errorMessage.show();
                 return false;
-            }
-            else if(comparison > 0){
+            } else if (comparison > 0) {
                 break;
+            }
+        }
+        final char[] reservedChars = {'|', '\\', '/', '?', '*', '<', ':', '>', '"'};
+        for(int j = 0; j < reservedChars.length; j++){
+            if(newRest.indexOf(reservedChars[j]) != -1){
+                Toast errorMessage = Toast.makeText(getApplicationContext(), "Restaurant name cannot contain " + reservedChars[j], Toast.LENGTH_LONG);
+                errorMessage.show();
+                return false;
             }
         }
         restaurants.add(i, newRest);

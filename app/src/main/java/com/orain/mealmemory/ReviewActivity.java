@@ -1,25 +1,16 @@
 package com.orain.mealmemory;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -27,12 +18,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -50,11 +36,6 @@ public class ReviewActivity extends AppCompatActivity {
     private boolean deleting;
     private String currentRest;
     private ArrayList<Review> reviews;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,11 +47,6 @@ public class ReviewActivity extends AppCompatActivity {
         //State of deleting manages handling of clicking a review
         //If deleting is true it will confirm and delete the review, if false it does nothing
         deleting = false;
-
-        String[] filesList = fileList();
-        for (String fileName : filesList) {
-            Log.d("Files (Review)", fileName);
-        }
 
         //Get name of currently edited restaurant from the MainActivity
         Intent intent = getIntent();
@@ -94,7 +70,6 @@ public class ReviewActivity extends AppCompatActivity {
             in.close();
         } catch (IOException e) {
             Toast errorMessage = Toast.makeText(getApplicationContext(), "Cannot Read File", Toast.LENGTH_SHORT);
-            Log.e("Read Failed", e.getMessage());
             errorMessage.show();
         }
 
@@ -118,9 +93,6 @@ public class ReviewActivity extends AppCompatActivity {
                 deletingBar.setVisibility(View.GONE);
             }
         });
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     //If in the deleting state confirm with user and remove that review
@@ -282,7 +254,6 @@ public class ReviewActivity extends AppCompatActivity {
             FO.close();
         }catch (IOException e){
             Toast errorMessage = Toast.makeText(getApplicationContext(), "Cannot Write File" , Toast.LENGTH_SHORT);
-            Log.e("Write Failed", e.getMessage());
             errorMessage.show();
         }
     }
@@ -307,7 +278,6 @@ public class ReviewActivity extends AppCompatActivity {
         switch (sortType){
             case "0":
                 for(int i = 0; i < reviews.size(); i++){
-                    //Log.d("Review Insert", reviews.get(i).getMealName() + " compared to " + temp.getMealName() + " = " + reviews.get(i).compareTo0(temp));
                     if(reviews.get(i).compareTo0(temp) > 0){
                         loc = i;
                         break;
